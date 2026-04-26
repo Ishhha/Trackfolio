@@ -1,0 +1,11 @@
+fastapi>=0.103.0
+uvicorn>=0.23.2
+sqlalchemy>=2.0.0
+aiosqlite>=0.19.0
+yfinance>=0.2.31
+pydantic>=2.4.0
+pydantic-settings>=2.0.3
+python-multipart>=0.0.6
+pandas>=2.1.0
+apscheduler>=3.10.4
+cachetools>=5.3.1

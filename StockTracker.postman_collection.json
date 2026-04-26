@@ -1,0 +1,444 @@
+{
+	"info": {
+		"_postman_id": "b3f07a7e-128d-4f81-a67b-1a5c2d3e4f5a",
+		"name": "Stock Portfolio Tracker API",
+		"description": "API collection for the local standalone Stock Portfolio Tracker application.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "System",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Portfolios",
+			"item": [
+				{
+					"name": "Create Portfolio",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData && jsonData.id) {",
+									"    pm.collectionVariables.set(\"PORTFOLIO_ID\", jsonData.id);",
+									"}",
+									"if (jsonData && jsonData.public_id) {",
+									"    pm.collectionVariables.set(\"PUBLIC_ID\", jsonData.public_id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-User-ID",
+								"value": "{{user_id}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"My Tech Portfolio\",\n    \"currency\": \"USD\",\n    \"is_public\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/portfolios/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolios",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Portfolios",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-User-ID",
+								"value": "{{user_id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/portfolios/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolios",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Portfolio Details (with P&L)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-User-ID",
+								"value": "{{user_id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/portfolios/{{PORTFOLIO_ID}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolios",
+								"{{PORTFOLIO_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Portfolio",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "X-User-ID",
+								"value": "{{user_id}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"My Updated Tech Portfolio\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/portfolios/{{PORTFOLIO_ID}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolios",
+								"{{PORTFOLIO_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Import Portfolio (CSV)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-User-ID",
+								"value": "{{user_id}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/portfolios/{{PORTFOLIO_ID}}/import",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolios",
+								"{{PORTFOLIO_ID}}",
+								"import"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Export Portfolio (CSV)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-User-ID",
+								"value": "{{user_id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/portfolios/{{PORTFOLIO_ID}}/export",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolios",
+								"{{PORTFOLIO_ID}}",
+								"export"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Portfolio",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-User-ID",
+								"value": "{{user_id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/portfolios/{{PORTFOLIO_ID}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolios",
+								"{{PORTFOLIO_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Portfolio History",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-User-ID",
+								"value": "{{user_id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/portfolios/{{PORTFOLIO_ID}}/history",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolios",
+								"{{PORTFOLIO_ID}}",
+								"history"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Stocks",
+			"item": [
+				{
+					"name": "Add Stock",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData && jsonData.id) {",
+									"    pm.collectionVariables.set(\"STOCK_ID\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-User-ID",
+								"value": "{{user_id}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"portfolio_id\": \"{{PORTFOLIO_ID}}\",\n    \"symbol\": \"AAPL\",\n    \"quantity\": 15.5,\n    \"avg_buy_price\": 145.20\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/stocks/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"stocks",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Stock",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "X-User-ID",
+								"value": "{{user_id}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"quantity\": 20,\n    \"avg_buy_price\": 142.00\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/stocks/{{STOCK_ID}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"stocks",
+								"{{STOCK_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Stock",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "X-User-ID",
+								"value": "{{user_id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/stocks/{{STOCK_ID}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"stocks",
+								"{{STOCK_ID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Public",
+			"item": [
+				{
+					"name": "Get Public Portfolio",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/public/portfolio/{{PUBLIC_ID}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"public",
+								"portfolio",
+								"{{PUBLIC_ID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:8000"
+		},
+		{
+			"key": "user_id",
+			"value": "my-local-user-uuid"
+		},
+		{
+			"key": "PORTFOLIO_ID",
+			"value": ""
+		},
+		{
+			"key": "STOCK_ID",
+			"value": ""
+		},
+		{
+			"key": "PUBLIC_ID",
+			"value": ""
+		}
+	]
+}
