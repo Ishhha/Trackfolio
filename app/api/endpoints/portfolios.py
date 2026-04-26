@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Header, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, Header, UploadFile, File, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
@@ -6,39 +6,25 @@ import pandas as pd
 import io
 import uuid
 from app.core.database import get_db
-from app.models.domain import Portfolio, Stock, StockMetadata, PortfolioSnapshot
+from app.models.domain import Portfolio, Stock, StockMetadata, PortfolioSnapshot, User
 from app.schemas.portfolio import PortfolioCreate, PortfolioResponse, PortfolioUpdate, PortfolioSnapshotResponse
 from app.services.portfolio_service import calculate_portfolio_summary, get_portfolio_by_id
 from app.services.yfinance_client import fetch_multiple_stock_infos
+from app.api.deps import get_current_user
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
 router = APIRouter()
 
-def get_user_id(
-    x_user_id: Optional[str] = Header(
-        default=None,
-        description="Optional user identifier. If omitted, a new UUID is auto-generated for anonymous tracking.",
-        include_in_schema=True,
-    )
-) -> str:
-    """
-    Get the user ID from the X-User-ID header.
-    If not provided, auto-generates a UUID for anonymous tracking.
-    The caller should save the returned user_id for future requests.
-    """
-    if not x_user_id:
-        return str(uuid.uuid4())
-    return x_user_id
 
 @router.post("/", response_model=PortfolioResponse)
 async def create_portfolio(
     portfolio_in: PortfolioCreate,
-    user_id: str = Depends(get_user_id),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     portfolio = Portfolio(
-        user_id=user_id,
+        user_id=current_user.id,
         name=portfolio_in.name,
         currency=portfolio_in.currency,
         is_public=portfolio_in.is_public
@@ -53,10 +39,10 @@ async def create_portfolio(
 
 @router.get("/", response_model=List[PortfolioResponse])
 async def list_portfolios(
-    user_id: str = Depends(get_user_id),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    stmt = select(Portfolio).options(selectinload(Portfolio.stocks)).where(Portfolio.user_id == user_id)
+    stmt = select(Portfolio).options(selectinload(Portfolio.stocks)).where(Portfolio.user_id == current_user.id)
     result = await db.execute(stmt)
     portfolios = result.scalars().all()
     
@@ -66,10 +52,10 @@ async def list_portfolios(
 @router.get("/{portfolio_id}", response_model=PortfolioResponse)
 async def get_portfolio(
     portfolio_id: str,
-    user_id: str = Depends(get_user_id),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    portfolio = await get_portfolio_by_id(db, portfolio_id, user_id)
+    portfolio = await get_portfolio_by_id(db, portfolio_id, current_user.id)
     if not portfolio:
         raise HTTPException(status_code=404, detail="Portfolio not found")
         
@@ -81,10 +67,10 @@ async def get_portfolio(
 async def update_portfolio(
     portfolio_id: str,
     portfolio_in: PortfolioUpdate,
-    user_id: str = Depends(get_user_id),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    portfolio = await get_portfolio_by_id(db, portfolio_id, user_id)
+    portfolio = await get_portfolio_by_id(db, portfolio_id, current_user.id)
     if not portfolio:
         raise HTTPException(status_code=404, detail="Portfolio not found")
         
@@ -98,10 +84,10 @@ async def update_portfolio(
 @router.delete("/{portfolio_id}")
 async def delete_portfolio(
     portfolio_id: str,
-    user_id: str = Depends(get_user_id),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    portfolio = await get_portfolio_by_id(db, portfolio_id, user_id)
+    portfolio = await get_portfolio_by_id(db, portfolio_id, current_user.id)
     if not portfolio:
         raise HTTPException(status_code=404, detail="Portfolio not found")
         
@@ -112,11 +98,11 @@ async def delete_portfolio(
 @router.get("/{portfolio_id}/history", response_model=List[PortfolioSnapshotResponse])
 async def get_portfolio_history(
     portfolio_id: str,
-    user_id: str = Depends(get_user_id),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Retrieve historical portfolio snapshots for performance tracking."""
-    portfolio = await get_portfolio_by_id(db, portfolio_id, user_id)
+    portfolio = await get_portfolio_by_id(db, portfolio_id, current_user.id)
     if not portfolio:
         raise HTTPException(status_code=404, detail="Portfolio not found")
         
@@ -131,10 +117,10 @@ async def get_portfolio_history(
 async def import_portfolio_csv(
     portfolio_id: str,
     file: UploadFile = File(...),
-    user_id: str = Depends(get_user_id),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    portfolio = await get_portfolio_by_id(db, portfolio_id, user_id)
+    portfolio = await get_portfolio_by_id(db, portfolio_id, current_user.id)
     if not portfolio:
         raise HTTPException(status_code=404, detail="Portfolio not found")
         
@@ -188,10 +174,10 @@ async def import_portfolio_csv(
 @router.get("/{portfolio_id}/export")
 async def export_portfolio_csv(
     portfolio_id: str,
-    user_id: str = Depends(get_user_id),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    portfolio = await get_portfolio_by_id(db, portfolio_id, user_id)
+    portfolio = await get_portfolio_by_id(db, portfolio_id, current_user.id)
     if not portfolio:
         raise HTTPException(status_code=404, detail="Portfolio not found")
         

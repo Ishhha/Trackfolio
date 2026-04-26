@@ -3,9 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from typing import List, Optional
 from app.core.database import get_db
-from app.models.domain import Stock, Portfolio, StockMetadata
+from app.models.domain import Stock, Portfolio, StockMetadata, User
 from app.schemas.stock import StockCreate, StockResponse, StockUpdate
-from app.api.endpoints.portfolios import get_user_id
+from app.api.deps import get_current_user
 from app.services.portfolio_service import get_portfolio_by_id
 from app.services.yfinance_client import fetch_stock_info
 
@@ -14,11 +14,11 @@ router = APIRouter()
 @router.post("/", response_model=StockResponse)
 async def add_stock(
     stock_in: StockCreate,
-    user_id: str = Depends(get_user_id),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     # Verify portfolio belongs to user
-    portfolio = await get_portfolio_by_id(db, stock_in.portfolio_id, user_id)
+    portfolio = await get_portfolio_by_id(db, stock_in.portfolio_id, current_user.id)
     if not portfolio:
         raise HTTPException(status_code=404, detail="Portfolio not found")
         
@@ -57,13 +57,13 @@ async def add_stock(
 async def update_stock(
     stock_id: str,
     stock_in: StockUpdate,
-    user_id: str = Depends(get_user_id),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     # Fetch stock with portfolio check
     stmt = select(Stock).join(Portfolio).where(
         Stock.id == stock_id,
-        Portfolio.user_id == user_id
+        Portfolio.user_id == current_user.id
     )
     result = await db.execute(stmt)
     stock = result.scalar_one_or_none()
@@ -82,12 +82,12 @@ async def update_stock(
 @router.delete("/{stock_id}")
 async def delete_stock(
     stock_id: str,
-    user_id: str = Depends(get_user_id),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     stmt = select(Stock).join(Portfolio).where(
         Stock.id == stock_id,
-        Portfolio.user_id == user_id
+        Portfolio.user_id == current_user.id
     )
     result = await db.execute(stmt)
     stock = result.scalar_one_or_none()
