@@ -62,8 +62,10 @@ You can test the endpoints using **Postman**:
 1. Open Postman.
 2. Click **Import** (usually in the top left corner).
 3. Select the `StockTracker.postman_collection.json` file located in the root of this project directory.
-4. The collection uses variables to automatically save `PORTFOLIO_ID` and `STOCK_ID` when you create them, so you can easily run endpoints sequentially!
-5. **Start by running the "Create Portfolio" request**, and then test the rest of the endpoints.
+4. **Register a User**: Run the "Auth > Register" request to create an account.
+5. **Login**: Run the "Auth > Login" request. The collection is configured to automatically save the `ACCESS_TOKEN` from the response.
+6. **Create Portfolio**: Now run the "Portfolios > Create Portfolio" request. The token will be automatically included in the headers.
+7. The collection uses variables to automatically save `PORTFOLIO_ID` and `STOCK_ID` when you create them, so you can easily run endpoints sequentially!
 
 ---
 

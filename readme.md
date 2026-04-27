@@ -2,17 +2,17 @@
 
 ## 🎯 Objective
 
-Build a scalable, low-latency portfolio tracking system that allows users to monitor real-time Profit & Loss (P&L) across multiple stocks without requiring authentication.
+Build a scalable, low-latency portfolio tracking system that allows users to monitor real-time Profit & Loss (P&L) across multiple stocks with secure user authentication.
 
 ---
 
 # 🚀 Core Features (Scope of Implementation)
 
-## 1. Anonymous Portfolio Tracking
+## 1. User Authentication
 
-* Users can create portfolios without login
-* Each user is identified using a UUID stored on client-side
-* Backend persists data mapped to UUID
+* Secure registration and login using User ID (Username) and Password
+* JWT-based token authentication for all API requests
+* All data is strictly private to the authenticated owner
 
 ---
 
@@ -135,25 +135,12 @@ if stock.currency != portfolio.currency:
 
 ---
 
-## 8. Shareable Portfolio Links
+---
 
-### Features
+## 8. Secure Access Control
 
-* Public read-only access
-
-#### Table Changes
-
-```
-portfolio:
-    public_id (unique)
-    is_public (boolean)
-```
-
-### API
-
-```
-GET /public/portfolio/{public_id}
-```
+* Strict ownership: only the user who created the portfolio can view, update, or delete it
+* No public or shared access (private by default)
 
 ---
 
@@ -233,26 +220,28 @@ External APIs (Stock + FX)
 
 # 📊 API Design (High-Level)
 
-### Portfolio
+### Authentication
 
 ```
-POST /portfolio
-GET /portfolio/{id}
-GET /portfolio/{id}/history
+POST /auth/register
+POST /auth/login
 ```
 
-### Stocks
+### Portfolio (Requires Auth)
+
+```
+POST /portfolios
+GET /portfolios
+GET /portfolios/{id}
+GET /portfolios/{id}/history
+```
+
+### Stocks (Requires Auth)
 
 ```
 POST /stocks
-PATCH /stocks
-DELETE /stocks
-```
-
-### Public Access
-
-```
-GET /public/portfolio/{public_id}
+PATCH /stocks/{id}
+DELETE /stocks/{id}
 ```
 
 ### Import/Export

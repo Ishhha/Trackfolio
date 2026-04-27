@@ -6,7 +6,6 @@ from app.schemas.stock import StockResponse
 class PortfolioBase(BaseModel):
     name: str
     currency: Optional[str] = "USD"
-    is_public: Optional[bool] = False
 
 class PortfolioCreate(PortfolioBase):
     pass
@@ -14,7 +13,6 @@ class PortfolioCreate(PortfolioBase):
 class PortfolioUpdate(BaseModel):
     name: Optional[str] = None
     currency: Optional[str] = None
-    is_public: Optional[bool] = None
 
 class StockInsight(BaseModel):
     symbol: str
@@ -35,7 +33,6 @@ class PortfolioSummary(BaseModel):
 class PortfolioResponse(PortfolioBase):
     id: str
     user_id: str
-    public_id: str
     created_at: datetime
     
     stocks: List[StockResponse] = []

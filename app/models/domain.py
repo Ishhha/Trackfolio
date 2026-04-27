@@ -21,10 +21,7 @@ class Portfolio(Base):
     user_id = Column(String, ForeignKey("users.id"), index=True, nullable=False)
     name = Column(String, nullable=False)
     currency = Column(String, default="USD")
-    public_id = Column(String, unique=True, index=True, default=lambda: str(uuid.uuid4())[:8])
-    is_public = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
-    
     user = relationship("User", back_populates="portfolios")
     stocks = relationship("Stock", back_populates="portfolio", cascade="all, delete")
     snapshots = relationship("PortfolioSnapshot", back_populates="portfolio", cascade="all, delete")

@@ -138,11 +138,3 @@ async def get_portfolio_by_id(db: AsyncSession, portfolio_id: str, user_id: str)
     )
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
-
-async def get_portfolio_by_public_id(db: AsyncSession, public_id: str) -> Portfolio | None:
-    stmt = select(Portfolio).options(selectinload(Portfolio.stocks)).where(
-        Portfolio.public_id == public_id,
-        Portfolio.is_public == True
-    )
-    result = await db.execute(stmt)
-    return result.scalar_one_or_none()

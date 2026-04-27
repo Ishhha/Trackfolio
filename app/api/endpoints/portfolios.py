@@ -26,8 +26,7 @@ async def create_portfolio(
     portfolio = Portfolio(
         user_id=current_user.id,
         name=portfolio_in.name,
-        currency=portfolio_in.currency,
-        is_public=portfolio_in.is_public
+        currency=portfolio_in.currency
     )
     db.add(portfolio)
     await db.commit()
